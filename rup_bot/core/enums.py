@@ -1,0 +1,2 @@
+class LoggerName:
+    BOT = "RupBOT"
