@@ -2,22 +2,21 @@ import pandas as pd
 
 pd.set_option('display.max_colwidth', None)
 
-
 def read_exel_table(path):
     data = pd.read_excel(path, sheet_name = None)
 
     for _, df in data.items():
-        columnNames = list(df.columns.ravel())
+        column_names = list(df.columns.ravel())
 
         for i in range(1, 4):
-            print(df[columnNames[i]].to_list()[0])
+            print(df[column_names[i]].to_list()[0])
         
         print('\n')
 
         struct = list()
 
-        for i in range(4, len(columnNames)):
-            struct.append(df[columnNames[i]].to_list())
+        for i in range(4, len(column_names)):
+            struct.append(df[column_names[i]].to_list())
 
         for rows in range(len(struct[0])):
             for cols in range(len(struct)):
@@ -25,4 +24,4 @@ def read_exel_table(path):
             print('\n')
 
 
-read_exel_table('doc.xlsx')
+#read_exel_table('doc.xlsx')
