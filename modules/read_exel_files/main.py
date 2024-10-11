@@ -24,4 +24,4 @@ def read_exel_table(path):
             print('\n')
 
 
-#read_exel_table('doc.xlsx')
+read_exel_table('doc.xlsx')

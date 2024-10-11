@@ -12,8 +12,8 @@ async def command_start_handler(message: Message) -> None:
     builder = ReplyKeyboardBuilder()
 
     builder.row(
-        KeyboardButton(text = responses.get('get_info')),
-        KeyboardButton(text = responses.get('upload_info')),
+        KeyboardButton(text = responses.get('get_data')),
+        KeyboardButton(text = responses.get('upload_data')),
     )
 
     await message.answer(
