@@ -9,8 +9,8 @@ from rup_bot.core import consts
 from rup_bot.core.logger import logger
 
 from rup_bot.handlers.start import start_router
-from rup_bot.handlers.get_rup_info import get_info_router
-from rup_bot.handlers.upload_rup_info import upload_info_router
+from rup_bot.handlers.get_rup_data import get_info_router
+from rup_bot.handlers.upload_rup_data import upload_info_router
 from rup_bot.handlers.help import help_router
 from rup_bot.handlers.exception import exception_router
 

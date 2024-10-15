@@ -32,7 +32,7 @@ async def handle_file(message: Message, state: FSMContext) -> None:
 
 # хэндлер, если пользователь отправил не файл, а что то другое
 @upload_info_router.message(Uploader.waiting_file)
-async def handle_file_incorrectly(message: Message, state: FSMContext) -> None:
+async def handle_file_incorrectly(message: Message) -> None:
     await message.answer(text = responses.get('unsuccessful_upload'))
 
 
