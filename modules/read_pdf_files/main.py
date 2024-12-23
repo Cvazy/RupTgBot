@@ -1,5 +1,7 @@
-import pdfplumber
 import re
+import io
+import pdfplumber
+
 
 def clean_text(text):
     if isinstance(text, str):
@@ -10,6 +12,18 @@ def clean_text(text):
         return cleaned_text
 
     return text
+
+
+def read_pdf_file_headers(file: io.BytesIO):
+    with pdfplumber.open(file) as pdf:
+        for _, page in enumerate(pdf.pages):
+            tables = page.extract_tables()
+
+            if tables:
+                for _, table in enumerate(tables):
+                    return list(clean_text(i) for i in table[0] if i is not None)
+
+            return
 
 
 def read_pdf_table(file_name):
@@ -32,6 +46,3 @@ def read_pdf_table(file_name):
         print(f"Файл '{file_name}' не найден.")
     except Exception as e:
         print(f"Произошла ошибка при чтении файла: {e}")
-
-
-# read_pdf_table('doc.pdf')

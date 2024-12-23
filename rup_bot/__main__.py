@@ -5,22 +5,23 @@ from aiogram.enums import ParseMode
 from aiogram.types import BotCommand
 from aiogram.client.default import DefaultBotProperties
 
-from rup_bot.core import consts
-from rup_bot.core.logger import logger
+from core import consts
+from core.logger import logger
 
-from rup_bot.handlers.start import start_router
-from rup_bot.handlers.get_rup_data import get_info_router
-from rup_bot.handlers.upload_rup_data import upload_info_router
-from rup_bot.handlers.help import help_router
-from rup_bot.handlers.exception import exception_router
-
+from handlers.start import start_router
+from handlers.get_rup_data import get_info_router
+from handlers.upload_rup_data import upload_info_router
+from handlers.help import help_router
+from handlers.exception import exception_router
+from rup_bot.fsm.fsm_init_user import fsm_init_user_router
 
 ROUTERS = (
     start_router,
     get_info_router,
     upload_info_router,
     help_router,
-    exception_router,
+    fsm_init_user_router,
+    exception_router
 )
 
 
@@ -28,18 +29,20 @@ bot_commands = [
     BotCommand(command = '/start', description = 'Запустить бота'),
     BotCommand(command = '/get', description = 'Получить информацию'),
     BotCommand(command = '/upload', description = 'Загрузить информацию'),
+    BotCommand(command = '/reminder', description = 'Установить напоминание'),
     BotCommand(command = '/help', description = 'Помощь')
 ]
+
+
+bot = Bot(
+    token = consts.TELEGRAM_BOT_TOKEN,
+    default = DefaultBotProperties(parse_mode = ParseMode.HTML)
+)
 
 
 async def main() -> None:
     dp = Dispatcher()
     dp.include_routers(*ROUTERS)
-
-    bot = Bot(
-        token = consts.TELEGRAM_BOT_TOKEN,
-        default = DefaultBotProperties(parse_mode = ParseMode.HTML)
-    )
 
     await bot.set_my_commands(bot_commands)
 
