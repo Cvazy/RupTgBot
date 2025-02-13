@@ -5,6 +5,6 @@ from rup_bot.phrases import responses
 
 exception_router = Router()
 
-@exception_router.message(F.text)
+@exception_router.message(F)
 async def command_upload_info_handler(message: Message) -> None:
     await message.answer(text = responses.get('exception'))

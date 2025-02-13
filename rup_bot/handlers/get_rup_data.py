@@ -1,30 +1,26 @@
 from aiogram import Router, F
-from aiogram.filters import Command
 from aiogram.types import Message
-
-from rup_bot.db.db_queries import get_file_from_rup_files
+from aiogram.filters import Command
 
 from rup_bot.phrases import responses
+from rup_bot.db.db_queries import check_user_into_students, \
+    get_file_from_rup_files
 
 get_info_router = Router()
 
 
-async def getRupData(message: Message) -> None:
+@get_info_router.message(Command('get'))
+@get_info_router.message(F.text == responses.get('get_data'))
+async def command_get_data_handler(message: Message) -> None:
+    if len(check_user_into_students(tg_id = message.from_user.id)) == 0:
+        await message.answer(text = responses.get('pass_auth'))
+        return
+
     files_list = get_file_from_rup_files(message.from_user.id)
 
     for item in files_list:
-
-        # !!! DELETE CONDITION item.get('tg_file_id') != '1170461380' AFTER CLEAN TABLE rup_files
-
-        if item.get('tg_file_id') is not None and item.get('tg_file_id') != '1170461380':
+        if item.get('tg_file_id') is not None:
             await message.answer_document(item.get('tg_file_id'))
 
-
-@get_info_router.message(Command('get'))
-async def command_get_data_handler(message: Message) -> None:
-    await getRupData(message)
-
-
-@get_info_router.message(F.text == responses.get('get_data'))
-async def content_type_get_data_handler(message: Message) -> None:
-    await getRupData(message)
+    else:
+        await message.answer(text=responses.get('rup_file_not_found'))

@@ -3,12 +3,12 @@ import re
 from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.utils.keyboard import ReplyKeyboardBuilder, KeyboardButton
-from aiogram.types import Message, ReplyKeyboardRemove, InlineKeyboardMarkup
+from aiogram.types import Message, ReplyKeyboardRemove
 
 from rup_bot.db.db_queries import insert_data_into_students
-
 from rup_bot.phrases import responses, matching_init_user_field
+from rup_bot.utils.keyboard_builder import make_keyboard_yes_or_no, \
+    make_keyboard_get_data_and_upload_data
 
 fsm_init_user_router = Router()
 
@@ -28,13 +28,6 @@ class UserInfo(StatesGroup):
 
 def remove_spaces(message: str) -> str:
     return message.replace(' ', '')
-
-
-def make_keyboard_yes_or_no() -> InlineKeyboardMarkup:
-    return ReplyKeyboardBuilder().row(
-        KeyboardButton(text = responses.get('answer_yes')),
-        KeyboardButton(text = responses.get('answer_no')),
-    ).as_markup(resize_keyboard = True)
 
 
 @fsm_init_user_router.message(F.text == responses.get('sign_up'))
@@ -66,7 +59,7 @@ async def waiting_input_last_name(message: Message, state: FSMContext) -> None:
 async def waiting_input_first_name(message: Message, state: FSMContext) -> None:
     await message.answer(
         text = responses.get('about_middle_name'),
-        reply_markup = make_keyboard_yes_or_no()
+        reply_markup = await make_keyboard_yes_or_no()
     )
     await state.update_data(name = remove_spaces(message.text))
     await state.set_state(UserInfo.have_middle_name)
@@ -110,7 +103,7 @@ async def waiting_input_middle_name(message: Message, state: FSMContext) -> None
 async def waiting_input_group_number(message: Message, state: FSMContext) -> None:
     await message.answer(
         text = responses.get('fsm_want_input_email'),
-        reply_markup = make_keyboard_yes_or_no()
+        reply_markup = await make_keyboard_yes_or_no()
     )
     await state.update_data(group = remove_spaces(message.text))
     await state.set_state(UserInfo.want_input_email)
@@ -132,7 +125,7 @@ async def waiting_want_input_email(message: Message, state: FSMContext) -> None:
     else:
         await message.answer(
             text = responses.get('fsm_want_input_phone'),
-            reply_markup = make_keyboard_yes_or_no()
+            reply_markup = await make_keyboard_yes_or_no()
         )
         await state.set_state(UserInfo.want_input_phone)
 
@@ -144,7 +137,7 @@ async def waiting_want_input_email(message: Message, state: FSMContext) -> None:
 async def waiting_input_email(message: Message, state: FSMContext) -> None:
     await message.answer(
         text = responses.get('fsm_want_input_phone'),
-        reply_markup = make_keyboard_yes_or_no()
+        reply_markup = await make_keyboard_yes_or_no()
     )
     await state.update_data(email = remove_spaces(message.text))
     await state.set_state(UserInfo.want_input_phone)
@@ -153,7 +146,7 @@ async def waiting_input_email(message: Message, state: FSMContext) -> None:
 async def show_total_info(message: Message, state: FSMContext):
     await message.answer(
         text = responses.get('is_total_info_correct'),
-        reply_markup = make_keyboard_yes_or_no()
+        reply_markup = await make_keyboard_yes_or_no()
     )
     await message.answer(
         '\n'.join(f'{matching_init_user_field[key]}: {value}' for key, value in (await state.get_data()).items())
@@ -197,6 +190,12 @@ async def waiting_is_total_info_correct(message: Message, state: FSMContext) -> 
     if message.text == responses.get('answer_yes'):
         insert_data_into_students(await state.get_data(), message.from_user.id)
         await state.clear()
+
+        await message.answer(
+            text = responses.get('success_auth'),
+            reply_markup = await make_keyboard_get_data_and_upload_data()
+        )
+
     else:
         await message.answer(text = responses.get('refill_info_about_user'))
         await message.answer(

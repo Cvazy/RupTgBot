@@ -29,4 +29,3 @@ def upload_file_into_rup_files(file_info, file_bytes, tg_id, file_id) -> int:
     )
 
     return response.status_code
-
