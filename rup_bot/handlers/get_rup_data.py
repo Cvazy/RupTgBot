@@ -19,7 +19,7 @@ async def command_get_data_handler(message: Message) -> None:
     files_list = get_file_from_rup_files(message.from_user.id)
 
     if len(files_list) == 0:
-        await message.answer(text=responses.get('rup_file_not_found'))
+        await message.answer(text = responses.get('rup_file_not_found'))
         return
 
     for item in files_list:
