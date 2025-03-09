@@ -11,6 +11,7 @@ from aiogram.fsm.state import StatesGroup, State
 from rup_bot.phrases import responses
 from rup_bot.utils.file_validator import validator_exel_files
 from rup_bot.utils.file_validator import validator_pdf_files
+from rup_bot.utils.keyboard_builder import make_keyboard_get_data_and_upload_data
 from rup_bot.db.db_queries import check_user_into_students, \
     upload_file_into_rup_files
 
@@ -21,22 +22,24 @@ class Uploader(StatesGroup):
     waiting_file = State()
 
 
+def validate_file(file: io.BytesIO, func: Callable[[io.BytesIO], bool]) -> bool:
+    return func(file)
+
+
+async def download_file_from_tg(bot, file_id: str) -> io.BytesIO:
+    return await bot.download_file(
+        (await bot.get_file(file_id)).file_path
+    )
+
+
 @upload_info_router.message(Uploader.waiting_file, F.document)
 async def handle_file(message: Message, state: FSMContext) -> None:
     from rup_bot.__main__ import bot
 
-    def validate_file(file: io.BytesIO, func: Callable[[io.BytesIO], bool]) -> bool:
-        return func(file)
-
-    async def download_file_from_tg(file_id: str) -> io.BytesIO:
-        return await bot.download_file(
-            (await bot.get_file(file_id)).file_path
-        )
-
     match message.document.mime_type:
         case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':
             validated = validate_file(
-                await download_file_from_tg(message.document.file_id),
+                await download_file_from_tg(bot, message.document.file_id),
                 validator_exel_files
             )
 
@@ -46,7 +49,7 @@ async def handle_file(message: Message, state: FSMContext) -> None:
 
         case 'application/pdf':
             validated = validate_file(
-                await download_file_from_tg(message.document.file_id),
+                await download_file_from_tg(bot, message.document.file_id),
                 validator_pdf_files
             )
 
@@ -62,13 +65,38 @@ async def handle_file(message: Message, state: FSMContext) -> None:
 
     upload_file_into_rup_files(
         (await state.get_data()).get('file'),
-        await download_file_from_tg(message.document.file_id),
+        await download_file_from_tg(bot, message.document.file_id),
         message.from_user.id,
         message.document.file_id
     )
 
     await message.answer(
-        text = responses.get('success_upload')
+        text = responses.get('success_upload'),
+        reply_markup = await make_keyboard_get_data_and_upload_data()
+    )
+
+    await state.clear()
+
+
+@upload_info_router.message(Uploader.waiting_file, F.photo)
+async def handle_photo(message: Message, state: FSMContext) -> None:
+    from rup_bot.__main__ import bot
+
+    class File:
+        file_name = f'{message.photo[0].file_unique_id}_img'
+
+    await state.update_data(file = message.photo)
+
+    upload_file_into_rup_files(
+        File,
+        await download_file_from_tg(bot, message.photo[0].file_id),
+        message.from_user.id,
+        message.photo[0].file_id
+    )
+
+    await message.answer(
+        text = responses.get('success_upload'),
+        reply_markup = await make_keyboard_get_data_and_upload_data()
     )
 
     await state.clear()

@@ -29,7 +29,6 @@ bot_commands = [
     BotCommand(command = '/start', description = 'Запустить бота'),
     BotCommand(command = '/get', description = 'Получить информацию'),
     BotCommand(command = '/upload', description = 'Загрузить информацию'),
-    BotCommand(command = '/reminder', description = 'Установить напоминание'),
     BotCommand(command = '/help', description = 'Помощь')
 ]
 
