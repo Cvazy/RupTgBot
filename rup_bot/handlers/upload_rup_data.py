@@ -57,6 +57,9 @@ async def handle_file(message: Message, state: FSMContext) -> None:
                 await message.answer(text = responses.get('unsuccessful_upload'))
                 return
 
+        case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+            pass
+
         case _:
             await message.answer(text = responses.get('uploaded_other_format'))
             return

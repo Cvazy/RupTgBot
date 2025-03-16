@@ -6,8 +6,21 @@ def check_user_into_students(tg_id):
     return requests.get(f'{URL_API}/students/?tg_id={tg_id}').json()
 
 
+def get_list_faculties(param = ''):
+    if param == '':
+        return requests.get(f'{URL_API}/faculties/').json()
+    else:
+        return requests.get(f'{URL_API}/faculties/{param}/').json()
+
+
 def insert_data_into_students(data, tg_id) -> int:
     data.update({'tg_id': tg_id})
+
+    for faculty in get_list_faculties():
+        if faculty.get('name') == data.get('faculty'):
+            data['faculty'] = faculty.get('id')
+            break
+
     response = requests.post(f'{URL_API}/students/', data = data)
     return response.status_code
 

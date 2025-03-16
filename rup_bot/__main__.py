@@ -3,6 +3,7 @@ import asyncio
 from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 from aiogram.types import BotCommand
+from aiogram.methods import DeleteWebhook
 from aiogram.client.default import DefaultBotProperties
 
 from core import consts
@@ -45,6 +46,7 @@ async def main() -> None:
 
     await bot.set_my_commands(bot_commands)
 
+    await bot(DeleteWebhook(drop_pending_updates = True))
     await dp.start_polling(bot)
 
 
