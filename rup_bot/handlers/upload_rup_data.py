@@ -86,15 +86,15 @@ async def handle_photo(message: Message, state: FSMContext) -> None:
     from rup_bot.__main__ import bot
 
     class File:
-        file_name = f'{message.photo[0].file_unique_id}_img'
+        file_name = f'{message.photo[-1].file_unique_id}_img.png'
 
     await state.update_data(file = message.photo)
 
     upload_file_into_rup_files(
         File,
-        await download_file_from_tg(bot, message.photo[0].file_id),
+        await download_file_from_tg(bot, message.photo[-1].file_id),
         message.from_user.id,
-        message.photo[0].file_id
+        message.photo[-1].file_id
     )
 
     await message.answer(
