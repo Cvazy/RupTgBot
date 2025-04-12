@@ -22,9 +22,14 @@ async def command_get_data_handler(message: Message) -> None:
         await message.answer(text = responses.get('rup_file_not_found'))
         return
 
+    await message.answer (text = f"{responses.get('uploaded_files')}")
+
     for item in files_list:
         if item.get('tg_file_id') is not None:
             if '_img' in item.get('file'):
                 await message.answer_photo(item.get('tg_file_id'))
             else:
                 await message.answer_document(item.get('tg_file_id'))
+
+    await message.answer(text = f"{responses.get('add_new_files')}")
+

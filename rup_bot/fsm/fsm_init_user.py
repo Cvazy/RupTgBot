@@ -3,12 +3,13 @@ import re
 from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from aiogram.types import Message, ReplyKeyboardRemove
+from aiogram.types import Message, ReplyKeyboardRemove, ContentType
 
 from rup_bot.phrases import responses, matching_init_user_field
 from rup_bot.db.db_queries import insert_data_into_students, get_list_faculties
 from rup_bot.utils.keyboard_builder import make_keyboard_yes_or_no, \
-    make_keyboard_get_data_and_upload_data, make_keyboard_list_faculties
+    make_keyboard_get_data_and_upload_data, make_keyboard_list_faculties, \
+    make_keyboard_send_phone_number
 
 fsm_init_user_router = Router()
 
@@ -181,7 +182,7 @@ async def waiting_want_input_phone(message: Message, state: FSMContext) -> None:
     if message.text == responses.get('answer_yes'):
         await message.answer(
             text = responses.get('fsm_input_phone'),
-            reply_markup = ReplyKeyboardRemove()
+            reply_markup = await make_keyboard_send_phone_number()
         )
         await state.set_state(UserInfo.input_phone)
     else:
@@ -190,10 +191,10 @@ async def waiting_want_input_phone(message: Message, state: FSMContext) -> None:
 
 @fsm_init_user_router.message(
     UserInfo.input_phone,
-    F.text.func(lambda message: re.compile(r"^(?:\+7|8)\d{10}$").match(message))
+    F.content_type == ContentType.CONTACT
 )
 async def waiting_input_phone(message: Message, state: FSMContext) -> None:
-    await state.update_data(phone_number = remove_spaces(message.text))
+    await state.update_data(phone_number = f'+{message.contact.phone_number}')
     await show_total_info(message = message, state = state)
 
 

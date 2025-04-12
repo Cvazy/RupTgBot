@@ -31,3 +31,9 @@ async def make_keyboard_list_faculties() -> ReplyKeyboardMarkup:
         builder.button(text = item.get('name'))
 
     return builder.adjust(1).as_markup(resize_keyboard = True)
+
+
+async def make_keyboard_send_phone_number() -> ReplyKeyboardMarkup:
+    return ReplyKeyboardBuilder().row(
+        KeyboardButton(text = responses.get('fsm_input_phone'), request_contact = True)
+    ).as_markup(resize_keyboard = True)

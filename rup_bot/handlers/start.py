@@ -13,14 +13,19 @@ start_router = Router()
 
 @start_router.message(CommandStart())
 async def command_start_handler(message: Message, state: FSMContext) -> None:
-    if len(check_user_into_students(message.from_user.id)) == 0:
+    user = check_user_into_students(message.from_user.id)
+    text_message = responses.get('start').format(message.from_user.full_name)
+
+    if len(user) == 0:
         keyboard = await make_keyboard_sign_up()
+        text_message += f"\n\n{responses.get('need_to_pass_registration')}"
     else:
         keyboard = await make_keyboard_get_data_and_upload_data()
+        text_message += f"\n\n{responses.get('choose_action')}"
 
     await state.clear()
 
     await message.answer(
-        text = responses.get('start').format(message.from_user.full_name),
+        text = text_message,
         reply_markup = keyboard
     )
