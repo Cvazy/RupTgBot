@@ -193,8 +193,17 @@ async def waiting_want_input_phone(message: Message, state: FSMContext) -> None:
     UserInfo.input_phone,
     F.content_type == ContentType.CONTACT
 )
-async def waiting_input_phone(message: Message, state: FSMContext) -> None:
+async def waiting_share_phone(message: Message, state: FSMContext) -> None:
     await state.update_data(phone_number = f'+{message.contact.phone_number}')
+    await show_total_info(message = message, state = state)
+
+
+@fsm_init_user_router.message(
+    UserInfo.input_phone,
+    F.text.func(lambda message: re.compile(r"^(?:\+7|8)\d{10}$").match(message))
+)
+async def waiting_input_phone(message: Message, state: FSMContext) -> None:
+    await state.update_data(phone_number = remove_spaces(message.text))
     await show_total_info(message = message, state = state)
 
 
